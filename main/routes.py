@@ -1,9 +1,11 @@
 import os
+import secrets
+from PIL import Image, ImageOps
 from flask import render_template, url_for, flash, redirect, request, abort, session, jsonify, send_file
 
 from main import app, db, bcrypt, mail, google, github
 from main.models import User, SavedJob, Resume
-from main.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestRestForm, ResetPasswordForm
+from main.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestRestForm, ResetPasswordForm, ProfileForm
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 import requests
@@ -316,6 +318,70 @@ def account():
         form.username.data = current_user.username
         form.email.data = current_user.email
     return render_template('account.html', title='Account', form=form)
+
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn= random_hex + ".jpg"
+    picture_path= os.path.join(app.root_path, 'static/profile_pics', picture_fn)
+
+    # Resize the image
+    output_size = (200, 200)
+    i = Image.open(form_picture).convert('RGB')  # Ensure image is in RGB mode
+    i = ImageOps.fit(i, output_size, method=Image.LANCZOS)
+    i.save(picture_path, format='JPEG', quality=90)  # Save as JPEG with quality
+
+    return picture_fn
+
+def ensure_protocol(url):
+    if url and not url.startswith(('http://', 'https://')):
+        return 'https://' + url
+    return url
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form= ProfileForm()
+    if form.validate_on_submit():
+        if form.picture.data:
+            picture_file= save_picture(form.picture.data)
+            current_user.image_file= picture_file
+        current_user.bio = form.bio.data
+        current_user.skills = form.skills.data
+        current_user.linkedin = ensure_protocol(form.linkedin.data)
+        current_user.github = ensure_protocol(form.github.data)
+        current_user.location = form.location.data
+
+        db.session.commit()
+        flash('Your profile has been updated!', 'success')
+        return redirect(url_for('profile'))
+    form.bio.data= current_user.bio
+    form.skills.data = current_user.skills
+    form.linkedin.data = current_user.linkedin
+    form.github.data = current_user.github
+    form.location.data = current_user.location
+    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+    return render_template('profile.html', title='Profile', form=form, image_file=image_file)
+
+@app.route("/people")
+def people():
+    skill_filter = request.args.get('skill', '').strip().lower()
+    location_filter = request.args.get('location', '').strip().lower()
+
+    users = User.query
+    if skill_filter:
+        users = users.filter(User.skills.ilike(f'%{skill_filter}%'))
+    if location_filter:
+        users = users.filter(User.location.ilike(f'%{location_filter}%'))
+    users = users.all()
+    return render_template("people.html", users=users)
+
+@app.route('/people/<int:user_id>')
+def view_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template('public_profile.html', user=user)
+
+
 
 @app.route('/save_job', methods=['GET', 'POST'])
 @custom_login_required_for_save

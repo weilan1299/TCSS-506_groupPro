@@ -1,0 +1,59 @@
+
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Your Profile</h2>
+
+  <div class="row mb-4">
+    <div class="col-md-3 text-center">
+      <img src="{{ image_file }}" class="rounded-circle account-img" alt="Profile Picture">
+    </div>
+    <div class="col-md-9">
+      <form method="POST" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          {{ form.picture.label(class="form-label") }}
+          {{ form.picture(class="form-control") }}
+          {% for error in form.picture.errors %}
+            <span class="text-danger">{{ error }}</span>
+          {% endfor %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.bio.label(class="form-label") }}
+          {{ form.bio(class="form-control", rows=4) }}
+        </div>
+
+        <div class="mb-3">
+          {{ form.skills.label(class="form-label") }}
+          {{ form.skills(class="form-control") }}
+          <div class="form-text">Comma-separated (e.g. Python, React, SQL)</div>
+        </div>
+        <div class="mb-3">
+          {{ form.linkedin.label(class="form-label") }}
+          {{ form.linkedin(class="form-control") }}
+        </div>
+
+        <div class="mb-3">
+          {{ form.github.label(class="form-label") }}
+          {{ form.github(class="form-control") }}
+        </div>
+        <div class="mb-3">
+          {{ form.location.label(class="form-label") }}
+          {{ form.location(class="form-control") }}
+        </div>
+
+
+
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+

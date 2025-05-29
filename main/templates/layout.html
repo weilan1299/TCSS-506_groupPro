@@ -42,6 +42,9 @@
                             <li><a class="dropdown-item" href="{{ url_for('resume_builder') }}">Create Resume</a></li>
                           </ul>
                     </li>
+                    <a class="nav-item nav-link" href="{{url_for('people') }}">
+                        <i class="bi bi-briefcase-fill text-primary me-1"></i>people
+                    </a>
 
                   <a class="nav-item nav-link" href="{{url_for('about') }}">
                       <i class="bi bi-info-circle text-primary me-1"></i>About
@@ -54,6 +57,13 @@
                         <a class="nav-item nav-link" href="{{ url_for('account') }}">
                             <i class="bi bi-person-circle me-1"></i> Account
                         </a>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('profile') }}">
+                              <i class="bi bi-person-circle me-1"></i> Profile
+                            </a>
+                        </li>
+
 
                         <a class="nav-item nav-link" href="{{ url_for('saved_jobs') }}">
                             <i class="bi bi-bookmark-heart me-1"></i>Saved Jobs

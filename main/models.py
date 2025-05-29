@@ -1,5 +1,4 @@
 import datetime
-
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from main import db, login_manager, app
 from flask_login import UserMixin
@@ -15,7 +14,12 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
+    image_file = db.Column(db.String(20), nullable=False, default='default.jpeg')
+    bio = db.Column(db.Text, nullable=True, default='No bio provided.')
+    skills = db.Column(db.String(200), nullable=True, default='No skills listed.')
+    linkedin = db.Column(db.String(255))
+    github = db.Column(db.String(255))
+    location = db.Column(db.String(100), nullable=True, default='Not specified')
     password = db.Column(db.String(60), nullable=False)
 
 
