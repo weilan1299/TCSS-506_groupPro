@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>People</h2>
+  <div class="d-flex flex-column gap-3">
+
+    <form method="GET" class="row g-3 mb-4">
+      <div class="col-md-5">
+        <input type="text" class="form-control" name="skill" placeholder="Filter by skill (e.g. Python)" value="{{ skill_filter }}">
+      </div>
+      <div class="col-md-5">
+        <input type="text" class="form-control" name="location" placeholder="Filter by location" value="{{ location_filter }}">
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+      </div>
+      <div class="col-12 text-end">
+        <a href="{{ url_for('people') }}" class="btn btn-link btn-sm">Clear filters</a>
+      </div>
+
+    </form>
+
+    {% for user in users %}
+      <div class="card shadow-sm p-3 d-flex flex-row align-items-center">
+            <img src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}" alt="Profile Picture" class="rounded-circle me-3" style="width: 100px; height: 100px; object-fit: cover;">
+
+          <div class="flex-grow-1">
+            <h5 class="mb-1">{{ user.username }}</h5>
+            <p class="text-muted mb-1">{{ user.bio or "No bio provided." }}</p>
+            {% if user.skills %}
+              <p class="mb-2"><strong>Skills:</strong> {{ user.skills }}</p>
+            {% endif %}
+            {% if user.location %}
+              <p class="mb-3"><strong>Location:</strong> {{ user.location }}</p>
+            {% endif %}
+            {% if user.linkedin or user.github %}
+              <div class="mb-2">
+                {% if user.linkedin %}
+                  <a href="{{ user.linkedin }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1">
+                    <i class="bi bi-linkedin"></i> LinkedIn
+                  </a>
+                {% endif %}
+                {% if user.github %}
+                  <a href="{{ user.github }}" target="_blank" class="btn btn-sm btn-outline-dark">
+                    <i class="bi bi-github"></i> GitHub
+                  </a>
+                {% endif %}
+                </div>
+            {% endif %}
+            <a href="{{ url_for('view_profile', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">View Profile</a>
+          </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

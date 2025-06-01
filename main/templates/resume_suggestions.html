@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Resume Analysis & Suggestions</h2>
+                </div>
+                <div class="card-body">
+                    <div class="suggestions-section">
+                        <h3 class="mb-3">AI-Powered Suggestions</h3>
+                        <div class="suggestions-content">
+                            {{ suggestions | safe | nl2br }}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('resume_builder') }}" class="btn btn-primary">Back to Resume Builder</a>
+                        <button onclick="window.print()" class="btn btn-secondary">Print Suggestions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .suggestions-content {
+        white-space: pre-wrap;
+        font-size: 1.1em;
+        line-height: 1.6;
+    }
+    
+    .suggestions-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    
+    @media print {
+        .btn {
+            display: none;
+        }
+        .suggestions-section {
+            background-color: white;
+        }
+    }
+</style>
+{% endblock %} 

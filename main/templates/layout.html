@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
@@ -27,15 +29,40 @@
               </button>
               <div class="collapse navbar-collapse" id="navbarToggle">
                 <div class="navbar-nav mr-auto">
-                  <a class="nav-item nav-link" href="{{url_for('home') }}">Home</a>
-                  <a class="nav-item nav-link" href="{{url_for('about') }}">About</a>
+                  <a class="nav-item nav-link" href="{{url_for('home') }}">
+                    <i class="bi bi-house-door-fill text-primary me-1"></i>Home
+                  </a>
+
+                  <a class="nav-item nav-link" href="{{url_for('resume') }}">Resume</a>
+                    <a class="nav-item nav-link" href="{{url_for('people') }}">
+                        <i class="bi bi-briefcase-fill text-primary me-1"></i>people
+                    </a>
+
+                  <a class="nav-item nav-link" href="{{url_for('about') }}">
+                      <i class="bi bi-info-circle text-primary me-1"></i>About
+                  </a>
+
                 </div>
                 <!-- Navbar Right Side -->
                 <div class="navbar-nav">
                     {% if current_user.is_authenticated %}
-                        <a class="nav-item nav-link" href="{{ url_for('account') }}">Account</a>
-                        <a class="nav-item nav-link" href="{{ url_for('saved_jobs') }}">Saved Jobs</a>
+                        <a class="nav-item nav-link" href="{{ url_for('account') }}">
+                            <i class="bi bi-person-circle me-1"></i> Account
+                        </a>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('profile') }}">
+                              <i class="bi bi-person-circle me-1"></i> Profile
+                            </a>
+                        </li>
+
+
+                        <a class="nav-item nav-link" href="{{ url_for('saved_jobs') }}">
+                            <i class="bi bi-bookmark-heart me-1"></i>Saved Jobs
+                        </a>
+                        <a class="nav-item nav-link" href="{{ url_for('saved_resumes') }}">Saved Resumes</a>
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a>
+
 
                     {% else %}
                         <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
@@ -59,6 +86,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <a class="btn btn-danger" href="{{ url_for('logout') }}">Logout</a>
+
                     </div>
                 </div>
             </div>
@@ -77,9 +105,62 @@
                 {% endif %}
             {% endwith %}
             {% block content %}{% endblock %}
+
+
+            <style>
+              .social-icon {
+                font-size: 4rem;
+                transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+                display: inline-block;
+              }
+
+              .social-icon:hover {
+                transform: scale(1.2);
+                opacity: 0.85;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+              }
+            </style>
+
+            <!-- Footer -->
+            <footer class="bg-light text-center text-lg-start mt-5 border-top">
+              <div class="container p-4">
+                <div class="row">
+                  <!-- Contact Section -->
+                  <div class="col-md-6 mb-3">
+                    <h5>Contact Us</h5>
+                    <p>Email: <a href="mailto:support@example.com">careerfinder23@gmail.com</a></p>
+                    <p>Phone: +1 (555) 555-555</p>
+                  </div>
+
+                  <!-- Follow Us Section -->
+                  <div class="col-md-6 mb-3">
+                    <h5>Follow Us</h5>
+                    <a href="https://www.youtube.com/" target="_blank" class="me-3 social-icon" style="color: #FF0000;">
+                      <i class="bi bi-youtube"></i>
+                    </a>
+                    <a href="https://t.me/yourchannel" target="_blank" class="me-3 social-icon" style="color: #0088cc;">
+                      <i class="bi bi-telegram"></i>
+                    </a>
+                    <a href="https://github.com/yourproject" target="_blank" class="me-3 social-icon" style="color: #333;">
+                      <i class="bi bi-github"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/yourprofile" target="_blank" class="social-icon" style="color: #0e76a8;">
+                      <i class="bi bi-linkedin"></i>
+                    </a>
+
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center p-3 bg-light border-top">
+                © {{ current_year }} CareerFinder. All rights reserved.
+              </div>
+            </footer>
+
         </div>
       </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-HoA+FJr9L3wQvKcXfYx7YtLd+vmgZBvwMtwYXroZhZFo1X3CTsoMXnD1u4t5u4OD" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>

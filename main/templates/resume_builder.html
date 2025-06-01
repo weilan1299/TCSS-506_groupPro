@@ -1,0 +1,986 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Resume Builder</h1>
+    
+
+    <div class="row">
+        <!-- Form Column -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form>
+                        <!-- Theme Selection -->
+                        <div class="mb-3">
+                            <label class="form-label">Select Theme</label>
+                            <select class="form-select" name="theme" id="theme">
+                                <option value="modern">Modern</option>
+                                <option value="classic">Classic</option>
+                                <option value="professional">Professional</option>
+                            </select>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <h4 class="mb-3">Personal Information</h4>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="name" placeholder="Full Name (e.g., Jane Doe)" required>
+                            <small class="form-text text-muted">Enter your full legal name.</small>
+                        </div>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" name="email" placeholder="Email (e.g., jane.doe@email.com)" required>
+                            <small class="form-text text-muted">Enter a valid email address.</small>
+                        </div>
+                        <div class="mb-3">
+                            <input type="tel" class="form-control" name="phone" placeholder="Phone Number (e.g., (123) 456-7890)">
+                            <small class="form-text text-muted">Format: (123) 456-7890 or 123-456-7890</small>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="location" placeholder="Location (e.g., Seattle, WA)">
+                            <small class="form-text text-muted">City, State or City, Country</small>
+                        </div>
+
+                        <!-- Summary -->
+                        <h4 class="mb-3">Summary</h4>
+                        <div class="mb-3">
+                            <textarea class="form-control" name="summary" rows="3" placeholder="Write a brief summary of your professional background and goals"></textarea>
+                        </div>
+
+                        <!-- Experience -->
+                        <h4 class="mb-3">Work Experience</h4>
+                        <div id="experience-container">
+                            <div class="experience-entry mb-3 p-3 border rounded">
+                                <div class="mb-2">
+                                    <input type="text" class="form-control" name="exp_title[]" placeholder="Job Title">
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" class="form-control" name="exp_company[]" placeholder="Company">
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="exp_start[]" placeholder="Start Date (e.g., 01/2020)">
+                                        <small class="form-text text-muted">Format: MM/YYYY</small>
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="exp_end[]" placeholder="End Date (e.g., 12/2022 or Present)">
+                                        <small class="form-text text-muted">Format: MM/YYYY or 'Present'</small>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <textarea class="form-control" name="exp_description[]" rows="2" placeholder="Job Description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-3" onclick="addExperience()">Add Experience</button>
+
+                        <!-- Education -->
+                        <h4 class="mb-3">Education</h4>
+                        <div id="education-container">
+                            <div class="education-entry mb-3 p-3 border rounded">
+                                <div class="mb-2">
+                                    <input type="text" class="form-control" name="edu_school[]" placeholder="School/University">
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" class="form-control" name="edu_degree[]" placeholder="Degree">
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="edu_start[]" placeholder="Start Date (e.g., 09/2018)">
+                                        <small class="form-text text-muted">Format: MM/YYYY</small>
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control" name="edu_end[]" placeholder="End Date (e.g., 06/2022 or Present)">
+                                        <small class="form-text text-muted">Format: MM/YYYY or 'Present'</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mb-3" onclick="addEducation()">Add Education</button>
+
+                        <!-- Skills -->
+                        <h4 class="mb-3">Skills</h4>
+                        <div class="mb-3">
+                            <textarea class="form-control" name="skills" rows="3" placeholder="List your skills (e.g., Python, Data Analysis, Communication)"></textarea>
+                            <small class="form-text text-muted">Separate each skill with a comma.</small>
+                        </div>
+
+                        <!-- Projects -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="showProjects" onchange="toggleSection('projects-container')">
+                                <label class="form-check-label" for="showProjects">Include Projects</label>
+                            </div>
+                        </div>
+                        <div id="projects-container" style="display: none;">
+                            <h4 class="mb-3">Projects</h4>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="project_title[]" placeholder="Project Title">
+                                <small class="form-text text-muted">Enter the title of your project.</small>
+                            </div>
+                            <div class="mb-3">
+                                <textarea class="form-control" name="project_description[]" rows="2" placeholder="Project Description"></textarea>
+                                <small class="form-text text-muted">Describe your project briefly.</small>
+                            </div>
+                        </div>
+
+                        <!-- Awards -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="showAwards" onchange="toggleSection('awards-container')">
+                                <label class="form-check-label" for="showAwards">Include Awards</label>
+                            </div>
+                        </div>
+                        <div id="awards-container" style="display: none;">
+                            <h4 class="mb-3">Awards</h4>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="award_title[]" placeholder="Award Title">
+                                <small class="form-text text-muted">Enter the title of your award.</small>
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="award_date[]" placeholder="Award Date (e.g., 01/2020)">
+                                <small class="form-text text-muted">Format: MM/YYYY</small>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="text-center">
+                            <button type="button" class="btn btn-success" onclick="exportResume()">Export as PDF</button>
+                            <button type="button" class="btn btn-primary" onclick="previewResume()">Preview as Website</button>
+                            <button type="button" class="btn btn-primary" onclick="saveResume()">Save Resume</button>
+                            <button type="button" class="btn btn-info" id="analyzeResumeBtn">Get AI Suggestions</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Column -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="mb-3">Preview</h4>
+                    <div id="resume-preview" class="border p-4">
+                        <!-- Preview content will be updated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resume Preview Modal -->
+<div class="modal fade" id="resumePreviewModal" tabindex="-1" aria-labelledby="resumePreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resumePreviewModalLabel">Resume Preview</h5>
+                
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-end mb-3">
+                    <button type="button" class="btn btn-success" onclick="exportResume()">Download PDF</button>
+                </div>
+                <iframe id="resumePreviewFrame" style="width: 100%; height: 80vh; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Suggestions Panel -->
+<div id="suggestions-panel" class="suggestions-panel" style="display: none;">
+    <div class="suggestions-header">
+        <h5>AI Suggestions</h5>
+        <button type="button" class="btn-close" onclick="toggleSuggestionsPanel()"></button>
+    </div>
+    <div class="suggestions-content">
+        <div id="suggestions-text"></div>
+    </div>
+    <div class="suggestions-footer">
+        <button type="button" class="btn btn-danger" onclick="dimissSuggestions()">Dismiss</button>
+    </div>
+</div>
+
+<!-- Resume Name Modal -->
+<div class="modal fade" id="resumeNameModal" tabindex="-1" aria-labelledby="resumeNameModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resumeNameModalLabel">Save Resume</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="resumeName" class="form-label">Resume Name</label>
+                    <input type="text" class="form-control" id="resumeName" placeholder="Enter a name for your resume">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSaveResume()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.suggestions-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 400px;
+    max-height: 500px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.suggestions-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.suggestions-content {
+    padding: 15px;
+    overflow-y: auto;
+    max-height: 350px;
+}
+
+.suggestions-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.suggestions-content p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we have resume data (for editing)
+    const resumeData = {{ resume|tojson|safe if resume else 'null' }};
+    if (resumeData) {
+        // Set theme
+        document.getElementById('theme').value = resumeData.theme || 'professional';
+        
+        // Set personal info
+        const personalInfo = resumeData.basics || {};
+        document.querySelector('input[name="name"]').value = personalInfo.name || '';
+        document.querySelector('input[name="email"]').value = personalInfo.email || '';
+        document.querySelector('input[name="phone"]').value = personalInfo.phone || '';
+        document.querySelector('input[name="location"]').value = personalInfo.location?.address || '';
+        document.querySelector('textarea[name="summary"]').value = personalInfo.summary || '';
+        
+        // Set experience
+        const experienceContainer = document.getElementById('experience-container');
+        experienceContainer.innerHTML = ''; // Clear default entry
+        (resumeData.work || []).forEach(exp => {
+            const newEntry = document.createElement('div');
+            newEntry.className = 'experience-entry mb-3 p-3 border rounded';
+            newEntry.innerHTML = `
+                <div class="mb-2">
+                    <input type="text" class="form-control" name="exp_title[]" value="${exp.position || ''}" placeholder="Job Title">
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="form-control" name="exp_company[]" value="${exp.company || ''}" placeholder="Company">
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        <input type="text" class="form-control" name="exp_start[]" value="${exp.startDate || ''}" placeholder="Start Date (e.g., 01/2020)">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" name="exp_end[]" value="${exp.endDate || ''}" placeholder="End Date (e.g., 12/2022 or Present)">
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <textarea class="form-control" name="exp_description[]" rows="2" placeholder="Job Description">${exp.summary || ''}</textarea>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            experienceContainer.appendChild(newEntry);
+        });
+        
+        // Set education
+        const educationContainer = document.getElementById('education-container');
+        educationContainer.innerHTML = ''; // Clear default entry
+        (resumeData.education || []).forEach(edu => {
+            const newEntry = document.createElement('div');
+            newEntry.className = 'education-entry mb-3 p-3 border rounded';
+            newEntry.innerHTML = `
+                <div class="mb-2">
+                    <input type="text" class="form-control" name="edu_school[]" value="${edu.institution || ''}" placeholder="School/University">
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="form-control" name="edu_degree[]" value="${edu.area || ''}" placeholder="Degree">
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        <input type="text" class="form-control" name="edu_start[]" value="${edu.startDate || ''}" placeholder="Start Date (e.g., 09/2018)">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" name="edu_end[]" value="${edu.endDate || ''}" placeholder="End Date (e.g., 06/2022 or Present)">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            educationContainer.appendChild(newEntry);
+        });
+        
+        // Set skills
+        const skills = (resumeData.skills || []).map(skill => skill.name).join(', ');
+        document.querySelector('textarea[name="skills"]').value = skills;
+        
+        // Set projects if they exist
+        if (resumeData.projects && resumeData.projects.length > 0) {
+            document.getElementById('showProjects').checked = true;
+            const projectsContainer = document.getElementById('projects-container');
+            projectsContainer.style.display = 'block';
+            projectsContainer.innerHTML = ''; // Clear default content
+            
+            resumeData.projects.forEach(proj => {
+                const projectDiv = document.createElement('div');
+                projectDiv.className = 'mb-3';
+                projectDiv.innerHTML = `
+                    <input type="text" class="form-control mb-2" name="project_title[]" value="${proj.name || ''}" placeholder="Project Title">
+                    <textarea class="form-control" name="project_description[]" rows="2" placeholder="Project Description">${proj.description || ''}</textarea>
+                `;
+                projectsContainer.appendChild(projectDiv);
+            });
+        }
+        
+        // Set awards if they exist
+        if (resumeData.awards && resumeData.awards.length > 0) {
+            document.getElementById('showAwards').checked = true;
+            const awardsContainer = document.getElementById('awards-container');
+            awardsContainer.style.display = 'block';
+            awardsContainer.innerHTML = ''; // Clear default content
+            
+            resumeData.awards.forEach(award => {
+                const awardDiv = document.createElement('div');
+                awardDiv.className = 'mb-3';
+                awardDiv.innerHTML = `
+                    <input type="text" class="form-control mb-2" name="award_title[]" value="${award.title || ''}" placeholder="Award Title">
+                    <input type="text" class="form-control" name="award_date[]" value="${award.date || ''}" placeholder="Award Date (e.g., 01/2020)">
+                `;
+                awardsContainer.appendChild(awardDiv);
+            });
+        }
+        
+        // Update preview
+        updatePreview();
+    }
+});
+
+function addExperience() {
+    const container = document.getElementById('experience-container');
+    const newEntry = document.createElement('div');
+    newEntry.className = 'experience-entry mb-3';
+    newEntry.innerHTML = `
+        <div class="mb-2">
+            <input type="text" class="form-control" name="exp_title[]" placeholder="Job Title">
+        </div>
+        <div class="mb-2">
+            <input type="text" class="form-control" name="exp_company[]" placeholder="Company">
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <input type="text" class="form-control" name="exp_start[]" placeholder="Start Date (e.g., 01/2020)">
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" name="exp_end[]" placeholder="End Date (e.g., 12/2022 or Present)">
+            </div>
+        </div>
+        <div class="mb-2">
+            <textarea class="form-control" name="exp_description[]" rows="2" placeholder="Job Description"></textarea>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Remove</button>
+    `;
+    container.appendChild(newEntry);
+}
+
+function addEducation() {
+    const container = document.getElementById('education-container');
+    const newEntry = document.createElement('div');
+    newEntry.className = 'education-entry mb-3';
+    newEntry.innerHTML = `
+        <div class="mb-2">
+            <input type="text" class="form-control" name="edu_degree[]" placeholder="Degree">
+        </div>
+        <div class="mb-2">
+            <input type="text" class="form-control" name="edu_school[]" placeholder="School">
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <input type="text" class="form-control" name="edu_start[]" placeholder="Start Date (e.g., 09/2018)">
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" name="edu_end[]" placeholder="End Date (e.g., 06/2022 or Present)">
+            </div>
+        </div>
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Remove</button>
+    `;
+    container.appendChild(newEntry);
+}
+
+function updatePreview() {
+    const preview = document.getElementById('resume-preview');
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    
+    let previewHTML = `
+        <h2>${formData.get('name')?.trim() || 'Your Name'}</h2>
+        <p>${formData.get('email')?.trim() || 'email@example.com'} | ${formData.get('phone')?.trim() || 'Phone'}</p>
+        <p>${formData.get('location')?.trim() || 'Location'}</p>
+        
+        <h3>Professional Summary</h3>
+        <p>${formData.get('summary')?.trim() || 'Your professional summary'}</p>
+        
+        <h3>Work Experience</h3>
+        ${Array.from(formData.getAll('exp_title[]')).map((title, i) => {
+            if (!title?.trim()) return '';
+            return `
+                <div>
+                    <h4>${title.trim()}</h4>
+                    <p>${formData.getAll('exp_company[]')[i]?.trim() || 'Company'}</p>
+                    <p>${formData.getAll('exp_start[]')[i]?.trim() || 'Start'} - ${formData.getAll('exp_end[]')[i]?.trim() || 'End'}</p>
+                    <p>${formData.getAll('exp_description[]')[i]?.trim() || 'Description'}</p>
+                </div>
+            `;
+        }).filter(html => html).join('') || '<p>No experience added yet</p>'}
+        
+        <h3>Education</h3>
+        ${Array.from(formData.getAll('edu_school[]')).map((school, i) => {
+            if (!school?.trim()) return '';
+            return `
+                <div>
+                    <h4>${school.trim()}</h4>
+                    <p>${formData.getAll('edu_degree[]')[i]?.trim() || 'Degree'}</p>
+                    <p>${formData.getAll('edu_start[]')[i]?.trim() || 'Start'} - ${formData.getAll('edu_end[]')[i]?.trim() || 'End'}</p>
+                </div>
+            `;
+        }).filter(html => html).join('') || '<p>No education added yet</p>'}
+        
+        <h3>Skills</h3>
+        <p>${formData.get('skills')?.trim() || 'Your skills'}</p>
+    `;
+    
+    preview.innerHTML = previewHTML;
+}
+
+// Update preview when form changes
+document.querySelector('form').addEventListener('input', updatePreview);
+
+// Initial preview update
+updatePreview();
+
+function exportResume() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    const exportButton = document.querySelector('button[onclick="exportResume()"]');
+    
+    // Disable button and show loading state
+    exportButton.disabled = true;
+    exportButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating PDF...';
+    
+    // Collect all form data with proper validation
+    const data = {
+        personal_info: {
+            name: formData.get('name')?.trim() || '',
+            email: formData.get('email')?.trim() || '',
+            phone: formData.get('phone')?.trim() || '',
+            location: formData.get('location')?.trim() || '',
+            summary: formData.get('summary')?.trim() || ''
+        },
+        theme: document.getElementById('theme').value,
+        experience: [],
+        education: [],
+        skills: [],
+        projects: [],
+        awards: []
+    };
+
+    // Process experience entries
+    const titles = formData.getAll('exp_title[]');
+    const companies = formData.getAll('exp_company[]');
+    const starts = formData.getAll('exp_start[]');
+    const ends = formData.getAll('exp_end[]');
+    const descriptions = formData.getAll('exp_description[]');
+
+    for (let i = 0; i < titles.length; i++) {
+        if (titles[i]?.trim()) {
+            data.experience.push({
+                title: titles[i].trim(),
+                company: companies[i]?.trim() || '',
+                start_date: starts[i]?.trim() || '',
+                end_date: ends[i]?.trim() || '',
+                description: descriptions[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process education entries
+    const schools = formData.getAll('edu_school[]');
+    const degrees = formData.getAll('edu_degree[]');
+    const edu_starts = formData.getAll('edu_start[]');
+    const edu_ends = formData.getAll('edu_end[]');
+
+    for (let i = 0; i < schools.length; i++) {
+        if (schools[i]?.trim()) {
+            data.education.push({
+                school: schools[i].trim(),
+                degree: degrees[i]?.trim() || '',
+                start_date: edu_starts[i]?.trim() || '',
+                end_date: edu_ends[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process skills
+    const skillsText = formData.get('skills')?.trim() || '';
+    if (skillsText) {
+        data.skills = skillsText.split(',')
+            .map(skill => skill.trim())
+            .filter(skill => skill.length > 0);
+    }
+
+    // Process projects if they exist
+    const projectTitles = formData.getAll('project_title[]');
+    const projectDescriptions = formData.getAll('project_description[]');
+    
+    for (let i = 0; i < projectTitles.length; i++) {
+        if (projectTitles[i]?.trim()) {
+            data.projects.push({
+                title: projectTitles[i].trim(),
+                description: projectDescriptions[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process awards if they exist
+    const awardTitles = formData.getAll('award_title[]');
+    const awardDates = formData.getAll('award_date[]');
+    
+    for (let i = 0; i < awardTitles.length; i++) {
+        if (awardTitles[i]?.trim()) {
+            data.awards.push({
+                title: awardTitles[i].trim(),
+                date: awardDates[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Validate required fields
+    if (!data.personal_info.name || !data.personal_info.email) {
+        alert('Please fill in at least your name and email address.');
+        exportButton.disabled = false;
+        exportButton.textContent = 'Export as PDF';
+        return;
+    }
+
+    // Send data to backend for PDF generation
+    fetch('/resume/export', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || 'Failed to generate PDF');
+            });
+        }
+        return response.blob();
+    })
+    .then(blob => {
+        if (blob.size === 0) {
+            throw new Error('Generated PDF is empty');
+        }
+        
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${data.personal_info.name.replace(/\s+/g, '_')}_resume.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(`Failed to export resume: ${error.message}. Please try again.`);
+    })
+    .finally(() => {
+        // Reset button state
+        exportButton.disabled = false;
+        exportButton.textContent = 'Export as PDF';
+    });
+}
+
+function previewResume() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    
+    // Collect all form data with proper validation
+    const data = {
+        personal_info: {
+            name: formData.get('name')?.trim() || '',
+            email: formData.get('email')?.trim() || '',
+            phone: formData.get('phone')?.trim() || '',
+            location: formData.get('location')?.trim() || '',
+            summary: formData.get('summary')?.trim() || ''
+        },
+        theme: document.getElementById('theme').value,
+        experience: [],
+        education: [],
+        skills: [],
+        projects: [],
+        awards: []
+    };
+
+    // Process experience entries
+    const titles = formData.getAll('exp_title[]');
+    const companies = formData.getAll('exp_company[]');
+    const starts = formData.getAll('exp_start[]');
+    const ends = formData.getAll('exp_end[]');
+    const descriptions = formData.getAll('exp_description[]');
+
+    for (let i = 0; i < titles.length; i++) {
+        if (titles[i]?.trim()) {
+            data.experience.push({
+                title: titles[i].trim(),
+                company: companies[i]?.trim() || '',
+                start_date: starts[i]?.trim() || '',
+                end_date: ends[i]?.trim() || '',
+                description: descriptions[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process education entries
+    const schools = formData.getAll('edu_school[]');
+    const degrees = formData.getAll('edu_degree[]');
+    const edu_starts = formData.getAll('edu_start[]');
+    const edu_ends = formData.getAll('edu_end[]');
+
+    for (let i = 0; i < schools.length; i++) {
+        if (schools[i]?.trim()) {
+            data.education.push({
+                school: schools[i].trim(),
+                degree: degrees[i]?.trim() || '',
+                start_date: edu_starts[i]?.trim() || '',
+                end_date: edu_ends[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process skills
+    const skillsText = formData.get('skills')?.trim() || '';
+    if (skillsText) {
+        data.skills = skillsText.split(',')
+            .map(skill => skill.trim())
+            .filter(skill => skill.length > 0);
+    }
+
+    // Process projects if they exist
+    const projectTitles = formData.getAll('project_title[]');
+    const projectDescriptions = formData.getAll('project_description[]');
+    
+    for (let i = 0; i < projectTitles.length; i++) {
+        if (projectTitles[i]?.trim()) {
+            data.projects.push({
+                title: projectTitles[i].trim(),
+                description: projectDescriptions[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process awards if they exist
+    const awardTitles = formData.getAll('award_title[]');
+    const awardDates = formData.getAll('award_date[]');
+    
+    for (let i = 0; i < awardTitles.length; i++) {
+        if (awardTitles[i]?.trim()) {
+            data.awards.push({
+                title: awardTitles[i].trim(),
+                date: awardDates[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Validate required fields
+    if (!data.personal_info.name || !data.personal_info.email) {
+        alert('Please fill in at least your name and email address.');
+        return;
+    }
+
+    // Show the preview modal
+    const previewModal = new bootstrap.Modal(document.getElementById('resumePreviewModal'));
+    previewModal.show();
+
+    // Show loading state
+    const previewFrame = document.getElementById('resumePreviewFrame');
+    previewFrame.srcdoc = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+    // Send data to backend for theme rendering
+    fetch('/resume/preview', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(html => {
+        // Update the iframe content
+        previewFrame.srcdoc = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        previewFrame.srcdoc = `
+            <div style="padding: 20px; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
+                Failed to generate preview. Please try again.
+            </div>
+        `;
+    });
+}
+
+function toggleSuggestionsPanel() {
+    const panel = document.getElementById('suggestions-panel');
+    panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+}
+
+function dimissSuggestions() {
+    toggleSuggestionsPanel();
+}
+
+document.getElementById('analyzeResumeBtn').addEventListener('click', function() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Add theme to the data
+    data.theme = document.getElementById('theme').value;
+    
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+    
+    fetch('/resume/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show suggestions in the panel
+            const suggestionsText = document.getElementById('suggestions-text');
+            suggestionsText.innerHTML = data.suggestions.replace(/\n/g, '<br>');
+            toggleSuggestionsPanel();
+        } else {
+            alert(data.error || 'Failed to analyze resume. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to analyze resume. Please try again.');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = 'Get AI Suggestions';
+    });
+});
+
+function toggleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveResume() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    
+    // Collect all form data with proper validation
+    const data = {
+        personal_info: {
+            name: formData.get('name')?.trim() || '',
+            email: formData.get('email')?.trim() || '',
+            phone: formData.get('phone')?.trim() || '',
+            location: formData.get('location')?.trim() || '',
+            summary: formData.get('summary')?.trim() || ''
+        },
+        theme: document.getElementById('theme').value,
+        experience: [],
+        education: [],
+        skills: [],
+        projects: [],
+        awards: []
+    };
+
+    // Process experience entries
+    const titles = formData.getAll('exp_title[]');
+    const companies = formData.getAll('exp_company[]');
+    const starts = formData.getAll('exp_start[]');
+    const ends = formData.getAll('exp_end[]');
+    const descriptions = formData.getAll('exp_description[]');
+
+    for (let i = 0; i < titles.length; i++) {
+        if (titles[i]?.trim()) {
+            data.experience.push({
+                title: titles[i].trim(),
+                company: companies[i]?.trim() || '',
+                start_date: starts[i]?.trim() || '',
+                end_date: ends[i]?.trim() || '',
+                description: descriptions[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process education entries
+    const schools = formData.getAll('edu_school[]');
+    const degrees = formData.getAll('edu_degree[]');
+    const edu_starts = formData.getAll('edu_start[]');
+    const edu_ends = formData.getAll('edu_end[]');
+
+    for (let i = 0; i < schools.length; i++) {
+        if (schools[i]?.trim()) {
+            data.education.push({
+                school: schools[i].trim(),
+                degree: degrees[i]?.trim() || '',
+                start_date: edu_starts[i]?.trim() || '',
+                end_date: edu_ends[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process skills
+    const skillsText = formData.get('skills')?.trim() || '';
+    if (skillsText) {
+        data.skills = skillsText.split(',')
+            .map(skill => skill.trim())
+            .filter(skill => skill.length > 0);
+    }
+
+    // Process projects if they exist
+    const projectTitles = formData.getAll('project_title[]');
+    const projectDescriptions = formData.getAll('project_description[]');
+    
+    for (let i = 0; i < projectTitles.length; i++) {
+        if (projectTitles[i]?.trim()) {
+            data.projects.push({
+                title: projectTitles[i].trim(),
+                description: projectDescriptions[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Process awards if they exist
+    const awardTitles = formData.getAll('award_title[]');
+    const awardDates = formData.getAll('award_date[]');
+    
+    for (let i = 0; i < awardTitles.length; i++) {
+        if (awardTitles[i]?.trim()) {
+            data.awards.push({
+                title: awardTitles[i].trim(),
+                date: awardDates[i]?.trim() || ''
+            });
+        }
+    }
+
+    // Validate required fields
+    if (!data.personal_info.name || !data.personal_info.email) {
+        alert('Please fill in at least your name and email address.');
+        return;
+    }
+
+    // Show the resume name modal
+    const resumeNameModal = new bootstrap.Modal(document.getElementById('resumeNameModal'));
+    resumeNameModal.show();
+
+    // Store the data in a global variable for use in confirmSaveResume
+    window.pendingResumeData = data;
+}
+
+function confirmSaveResume() {
+    const resumeName = document.getElementById('resumeName').value.trim();
+    if (!resumeName) {
+        alert('Please enter a name for your resume');
+        return;
+    }
+
+    // Show loading state
+    const saveButton = document.querySelector('button[onclick="confirmSaveResume()"]');
+    const originalText = saveButton.innerHTML;
+    saveButton.disabled = true;
+    saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
+    // Add the resume name to the data
+    const data = window.pendingResumeData;
+    data.title = resumeName;
+
+    // Send data to backend
+    fetch('/resume/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Verify the save operation by checking the database
+            return fetch('/resume/verify/' + data.resume_id)
+                .then(response => response.json())
+                .then(verifyData => {
+                    if (verifyData.exists) {
+                        // Close the modal using jQuery or vanilla JS
+                        const modalElement = document.getElementById('resumeNameModal');
+                        const modal = new bootstrap.Modal(modalElement);
+                        modal.hide();
+                        
+                        // Clear the form
+                        document.getElementById('resumeName').value = '';
+                        
+                        // Show success message
+                        alert('Your resume has been saved successfully!');
+                        
+                        // Redirect to the saved resumes page
+                        window.location.href = '/resumes';
+                    } else {
+                        throw new Error('Resume was not found in database after save');
+                    }
+                });
+        } else {
+            throw new Error(data.error || 'Failed to save resume');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to save resume: ' + error.message);
+        // Reset button state on error
+        saveButton.disabled = false;
+        saveButton.innerHTML = originalText;
+    });
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %} 

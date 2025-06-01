@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-3 text-center">
+      <img src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}" class="img-fluid rounded-circle mb-3" alt="Profile Picture" width="150" height="150">
+      <h4>{{ user.username }}</h4>
+
+
+
+      {% if user.email %}
+        <a href="mailto:{{ user.email }}" class="btn btn-outline-primary btn-sm mt-2">
+          <i class="bi bi-envelope"></i> Contact
+        </a>
+      {% endif %}
+
+      {% if user.linkedin or user.github %}
+        <div class="mt-3">
+          {% if user.linkedin %}
+            <a href="{{ user.linkedin }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1">
+              <i class="bi bi-linkedin"></i> LinkedIn
+            </a>
+          {% endif %}
+          {% if user.github %}
+            <a href="{{ user.github }}" target="_blank" class="btn btn-sm btn-outline-dark">
+              <i class="bi bi-github"></i> GitHub
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    <div class="col-md-9">
+      <h5>About</h5>
+      <p>{{ user.bio or 'This user has not provided a bio yet.' }}</p>
+
+      <h5>Skills</h5>
+      {% if user.skills %}
+        <div class="mb-3">
+          {% for skill in user.skills.split(',') %}
+            <span class="badge bg-primary me-1">{{ skill.strip() }}</span>
+          {% endfor %}
+        </div>
+        <div class="mb-3">
+          <h5>Location</h5>
+          <p>{{ user.location or 'Location not specified.' }}</p>
+        </div>
+      {% else %}
+        <p class="text-muted">No skills listed.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

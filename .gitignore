@@ -1,3 +1,5 @@
 .idea
+.env
 .venv
+.pem
 __pycache__

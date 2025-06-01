@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            line-height: 1.15;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .error-container {
+            background-color: white;
+            padding: 30px;
+            border: 1px solid #000;
+            text-align: center;
+        }
+        h1 { 
+            color: #000;
+            font-size: 12pt;
+            margin: 0 0 12px 0;
+            font-weight: bold;
+        }
+        p {
+            margin: 8px 0;
+            font-size: 12pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>{{ title }}</h1>
+        <p>{{ message }}</p>
+        {% if error_details %}
+        <p>Error details: {{ error_details }}</p>
+        {% endif %}
+    </div>
+</body>
+</html> 

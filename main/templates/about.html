@@ -1,7 +1,22 @@
 {% extends 'layout.html' %}
 {% block content %}
+<style>
+  body {
+    background: url("{{ url_for('static', filename='img/login_bg.jpg') }}") no-repeat center center fixed;
+    background-size: cover;
+  }
+</style>
 
-    <h1> This is the about page we will put something to it later on. </h1>
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+        <div class="card shadow p-4" style="width: 300%; max-width: 800px;">
+            <h2 class="text-center mb-4">About CareerFinder</h2>
+            <p class="text-center">CareerFinder is a web application designed to help users find their ideal career paths. It provides personalized recommendations based on user preferences and skills.</p>
+            <p class="text-center">Our mission is to empower individuals to make informed career choices and achieve their professional goals.</p>
+
+        </div>
+
+
+    </div>
 
 {% endblock content %}
 

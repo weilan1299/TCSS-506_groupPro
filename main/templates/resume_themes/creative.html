@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Resume</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            max-width: 8.5in;
+            margin: 0 auto;
+            padding: 0.5in;
+            background: #fff;
+        }
+
+        .header {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2em;
+            margin-bottom: 2em;
+            padding-bottom: 1em;
+            border-bottom: 4px solid #e74c3c;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 32pt;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .contact-info {
+            color: #7f8c8d;
+            font-size: 11pt;
+            line-height: 1.6;
+            text-align: right;
+        }
+
+        .section {
+            margin-bottom: 2em;
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 2em;
+        }
+
+        .section-title {
+            color: #e74c3c;
+            font-size: 14pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            padding-top: 0.3em;
+        }
+
+        .section-content {
+            border-left: 2px solid #e74c3c;
+            padding-left: 2em;
+        }
+
+        .experience-item, .education-item {
+            margin-bottom: 1.5em;
+            position: relative;
+        }
+
+        .experience-item:last-child, .education-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .experience-item h3, .education-item h3 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 14pt;
+            font-weight: 600;
+        }
+
+        .company, .degree {
+            color: #e74c3c;
+            font-weight: 500;
+            margin: 0.2em 0;
+            font-size: 12pt;
+        }
+
+        .date {
+            color: #7f8c8d;
+            font-size: 10pt;
+            margin: 0.2em 0;
+            font-weight: 500;
+        }
+
+        .description {
+            margin: 0.5em 0;
+            font-size: 11pt;
+            color: #2c3e50;
+        }
+
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1em;
+        }
+
+        .skill {
+            background: #f8f9fa;
+            padding: 0.8em 1.2em;
+            border-radius: 4px;
+            font-size: 11pt;
+            color: #2c3e50;
+            font-weight: 500;
+            position: relative;
+            padding-left: 2em;
+        }
+
+        .skill:before {
+            content: "•";
+            color: #e74c3c;
+            position: absolute;
+            left: 1em;
+            font-size: 1.2em;
+        }
+
+        .projects-item, .awards-item {
+            margin-bottom: 1.5em;
+            padding-left: 1em;
+            border-left: 2px solid #e74c3c;
+        }
+
+        .projects-item:last-child, .awards-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .projects-item h3, .awards-item h3 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 13pt;
+            font-weight: 600;
+        }
+
+        .summary {
+            font-size: 11pt;
+            line-height: 1.8;
+            color: #2c3e50;
+        }
+
+        .summary-section {
+            margin-bottom: 2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>{{ resume.personal_info.name }}</h1>
+        </div>
+        <div class="header-right">
+            <div class="contact-info">
+                {{ resume.personal_info.email }}<br>
+                {{ resume.personal_info.phone }}<br>
+                {{ resume.personal_info.location }}
+            </div>
+        </div>
+    </div>
+
+    {% if resume.personal_info.summary %}
+    <div class="summary-section">
+        <div class="section">
+            <h2 class="section-title">About</h2>
+            <div class="section-content">
+                <div class="summary">{{ resume.personal_info.summary }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if resume.experience %}
+    <div class="section">
+        <h2 class="section-title">Experience</h2>
+        <div class="section-content">
+            {% for exp in resume.experience %}
+            <div class="experience-item">
+                <h3>{{ exp.title }}</h3>
+                <div class="company">{{ exp.company }}</div>
+                <div class="date">{{ exp.start_date }} - {{ exp.end_date }}</div>
+                <div class="description">{{ exp.description }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if resume.education %}
+    <div class="section">
+        <h2 class="section-title">Education</h2>
+        <div class="section-content">
+            {% for edu in resume.education %}
+            <div class="education-item">
+                <h3>{{ edu.school }}</h3>
+                <div class="degree">{{ edu.degree }}</div>
+                <div class="date">{{ edu.start_date }} - {{ edu.end_date }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if resume.skills %}
+    <div class="section">
+        <h2 class="section-title">Skills</h2>
+        <div class="section-content">
+            <div class="skills">
+                {% for skill in resume.skills %}
+                <div class="skill">{{ skill }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if resume.projects %}
+    <div class="section">
+        <h2 class="section-title">Projects</h2>
+        <div class="section-content">
+            {% for proj in resume.projects %}
+            <div class="projects-item">
+                <h3>{{ proj.title }}</h3>
+                <div class="description">{{ proj.description }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if resume.awards %}
+    <div class="section">
+        <h2 class="section-title">Awards</h2>
+        <div class="section-content">
+            {% for award in resume.awards %}
+            <div class="awards-item">
+                <h3>{{ award.title }}</h3>
+                <div class="date">{{ award.date }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</body>
+</html> 
