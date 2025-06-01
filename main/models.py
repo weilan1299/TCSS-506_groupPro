@@ -52,18 +52,15 @@ class SavedJob(db.Model):
 class Resume(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)  # JSON string containing resume data and suggestions
+    title = db.Column(db.String(100), nullable=False)  # new field
+    content = db.Column(db.Text, nullable=False)
+    modified_content = db.Column(db.Text, nullable=True)  # Store modified content
+    ai_suggestions = db.Column(db.Text, nullable=True)  # Store AI suggestions
     theme = db.Column(db.String(50), default='modern')
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.datetime, onupdate=datetime.datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     user = db.relationship('User', backref='resumes')
 
     def __repr__(self):
-        return f"Resume('{self.id}', '{self.user_id}', '{self.theme}')"
+        return f"Resume('{self.id}', '{self.title}', '{self.user_id}', '{self.theme}')"
 
-
-
-
-
-    def __repr__(self):
-        return f"SavedJob('{self.job_id}', api_used='{self.api_used}', user='{self.user.username}', saved_at='{self.saved_at}')"

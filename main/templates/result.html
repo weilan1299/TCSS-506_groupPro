@@ -1,36 +1,209 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="container mt-4">
-  <h2>AI Suggestions for Your Resume</h2>
+<div class="container-fluid mt-4">
+  <div class="row">
+    <!-- Resume Content Column -->
+    <div class="col-md-8">
+      <div class="card resume-paper">
+        <div class="card-body">
+          {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+          {% endif %}
 
-  {% if error %}
-  <div class="alert alert-danger">{{ error }}</div>
-  {% endif %}
+          <!-- Edit Mode Toggle -->
+          <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-outline-primary" onclick="toggleEditMode()" id="editToggleBtn">
+              <i class="fas fa-edit"></i> Edit Mode
+            </button>
+          </div>
 
-  <form method="post" action="{{ url_for('result') }}">
-    <textarea name="suggestions" class="form-control" rows="15" {% if accepted %}readonly{% endif %}>{{ suggestions }}</textarea>
-
-    <div class="mt-3 d-flex gap-3">
-      {% if not accepted %}
-      <button type="button" class="btn btn-outline-primary" onclick="downloadSuggestions()">Download Suggestions</button>
-      <button type="submit" class="btn btn-primary">Accept Suggestions</button>
-      {% else %}
-      <div class="alert alert-success">Suggestions accepted!</div>
-      {% endif %}
+          <!-- Original Resume Content -->
+          <div class="resume-section mb-6">
+            <h3 class="section-title">Original Resume</h3>
+            <div id="originalContent" class="resume-content" contenteditable="false">
+              <pre>{{ original_content }}</pre>
+            </div>
+            <div class="edit-controls mt-2" style="display: none;">
+              <button type="button" class="btn btn-success btn-sm" onclick="saveEdits('original')">
+                <i class="fas fa-save"></i> Save Changes
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEdits('original')">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </form>
+
+    <!-- AI Suggestions Column -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">AI Suggestions</h5>
+        </div>
+        <div class="card-body">
+          <div class="suggestions-content">
+            <pre>{{ suggestions }}</pre>
+          </div>
+          {% if suggestions and suggestions != 'No AI suggestions yet.' %}
+          <button class="btn btn-outline-primary btn-sm mt-3" onclick="downloadSuggestions()">
+            <i class="fas fa-download"></i> Download Suggestions
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
+let originalContent = '';
+
+function toggleEditMode() {
+  const editBtn = document.getElementById('editToggleBtn');
+  const isEditing = editBtn.classList.contains('active');
+  
+  // Toggle button state
+  editBtn.classList.toggle('active');
+  editBtn.innerHTML = isEditing ? 
+    '<i class="fas fa-edit"></i> Edit Mode' : 
+    '<i class="fas fa-check"></i> Exit Edit Mode';
+  
+  // Toggle content editability
+  const originalDiv = document.getElementById('originalContent');
+  const editControls = document.querySelectorAll('.edit-controls');
+  
+  if (!isEditing) {
+    // Entering edit mode
+    originalContent = originalDiv.innerHTML;
+    originalDiv.contentEditable = true;
+    editControls.forEach(control => control.style.display = 'block');
+    originalDiv.classList.add('editing');
+  } else {
+    // Exiting edit mode
+    originalDiv.contentEditable = false;
+    editControls.forEach(control => control.style.display = 'none');
+    originalDiv.classList.remove('editing');
+  }
+}
+
+function saveEdits(type) {
+  const content = document.getElementById('originalContent').innerHTML;
+    
+  fetch('/result/save_edits', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      type: type,
+      content: content
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      flash('Changes saved successfully!', 'success');
+      originalContent = content;
+    } else {
+      flash('Error saving changes: ' + data.error, 'danger');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    flash('Error saving changes. Please try again.', 'danger');
+  });
+}
+
+function cancelEdits(type) {
+  const div = document.getElementById('originalContent');
+  div.innerHTML = originalContent;
+}
+
 function downloadSuggestions() {
-  const text = document.querySelector('textarea[name="suggestions"]').value;
-  const blob = new Blob([text], {type: 'text/plain'});
-  const url = URL.createObjectURL(blob);
+  const suggestions = document.querySelector('.suggestions-content').innerText;
+  const blob = new Blob([suggestions], { type: 'text/plain' });
+  const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = 'resume_suggestions.txt';
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  window.URL.revokeObjectURL(url);
 }
 </script>
-{% endblock %}
+
+<style>
+.resume-paper {
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.suggestions-content pre {
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+.resume-content {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #dee2e6;
+  min-height: 200px;
+  line-height: 1.6;
+  font-size: 1rem;
+  white-space: pre-wrap;
+}
+
+.resume-content h1, 
+.resume-content h2, 
+.resume-content h3 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.resume-content p {
+  margin-bottom: 1rem;
+}
+
+.resume-content ul, 
+.resume-content ol {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+.resume-content li {
+  margin-bottom: 0.5rem;
+}
+
+.resume-content.editing {
+  background-color: #fff;
+  border: 2px solid #007bff;
+  outline: none;
+}
+
+.edit-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#editToggleBtn.active {
+  background-color: #007bff;
+  color: white;
+}
+</style>
+{% endblock content %}

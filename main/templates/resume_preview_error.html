@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Resume Preview Error</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            line-height: 1.15;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .error-container {
+            background-color: white;
+            padding: 30px;
+            border: 1px solid #000;
+            text-align: center;
+        }
+        h1 { 
+            color: #000;
+            font-size: 12pt;
+            margin: 0 0 12px 0;
+            font-weight: bold;
+        }
+        p {
+            margin: 8px 0;
+            font-size: 12pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>Error Generating Preview</h1>
+        <p>There was an error generating the resume preview. Please try again or contact support if the problem persists.</p>
+        <p>Error details: {{ error }}</p>
+    </div>
+</body>
+</html> 

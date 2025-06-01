@@ -2,7 +2,7 @@ import os
 import secrets
 from PIL import Image, ImageOps
 from flask import render_template, url_for, flash, redirect, request, abort, session, jsonify, send_file
-
+from wtforms.validators import email
 from main import app, db, bcrypt, mail, google, github
 from main.models import User, SavedJob, Resume
 from main.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestRestForm, ResetPasswordForm, ProfileForm
@@ -22,6 +22,7 @@ import pdfplumber
 from main.utils.resume_parser import extract_text, get_ai_suggestions
 from main.utils.resume_formatter import format_resume_data
 from main.utils.template_loader import load_template
+from main.utils.uploaded_resume import process_uploaded_resume
 from werkzeug.utils import secure_filename
 
 
@@ -549,6 +550,7 @@ def reset_token(token):
 
 
 #From Weilan
+# From Weilan
 @app.route('/resume/new', methods=['GET', 'POST'])
 @login_required
 def new_resume():
@@ -654,14 +656,16 @@ def download_resume(resume_id):
 def delete_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
     if resume.user_id != current_user.id:
-        return render_template('error.html',
-                               title='Access Denied',
-                               message='You do not have permission to delete this resume.')
-
+        return jsonify({'success': False, 'error': 'You do not have permission to delete this resume.'}), 403
     db.session.delete(resume)
     db.session.commit()
-    flash('Resume has been deleted!', 'success')
-    return redirect(url_for('home'))
+    resume = Resume.query.get(resume_id)
+    if not resume:
+        flash('Resume has been deleted!', 'success')
+        return jsonify({'success': True, 'message': 'Resume has been deleted!'}), 200
+    else:
+        flash('Failed to delete resume.', 'danger')
+        return jsonify({'success': False, 'error': 'Failed to delete resume.'}), 500
 
 
 @app.route('/resume/<int:resume_id>/edit', methods=['GET', 'POST'])
@@ -680,35 +684,96 @@ def edit_resume(resume_id):
         return jsonify({'message': 'Resume updated successfully'})
 
     resume_data = json.loads(resume.content)
-    return render_template('edit_resume.html', resume=resume_data)
+    return render_template('resume_builder.html', resume=resume_data)
 
 
 @app.route('/resume', methods=['GET', 'POST'])
 def resume():
+    """
+    Handles the resume upload form.
+    """
     if request.method == 'POST':
-        if 'file' in request.files:
-            file = request.files['file']
-            if file.filename:
-                text = ''
-                if file.filename.endswith('.pdf'):
-                    with pdfplumber.open(file) as pdf:
-                        for page in pdf.pages:
-                            page_text = page.extract_text()
-                            if page_text:
-                                text += page_text + '\n'
-                elif file.filename.endswith('.docx'):
-                    doc = docx.Document(file)
-                    for para in doc.paragraphs:
-                        text += para.text + '\n'
-                parsed = {
-                    "summary": text[:300],
-                    "skills": [],
-                    "education": [],
-                    "workExperience": []
-                }
-                return jsonify(parsed)
-        return redirect(url_for('resume_builder'))
+        if 'file' not in request.files:
+            flash('No file part', 'danger')
+            return redirect(url_for('resume'))
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(url_for('resume'))
+        if file:
+            # Process the uploaded resume using the helper function
+            resume_entry, error = process_uploaded_resume(file, current_user.id)
+
+            if resume_entry:
+                flash('Your resume has been uploaded and processed!', 'success')
+                # Redirect to the GET route of /result with the new resume_id
+                return redirect(url_for('result', resume_id=resume_entry.id))
+            else:
+                flash(error, 'danger')
+                return redirect(url_for('resume'))
+
     return render_template('resume.html')
+
+
+@app.route('/result/<int:resume_id>', methods=['GET', 'POST'])
+@login_required  # Ensure user is logged in to view/process results
+def result(resume_id):
+    """
+    Displays the uploaded resume content and handles AI suggestions/edits.
+    """
+    resume_entry = Resume.query.filter_by(id=resume_id, user_id=current_user.id).first()
+
+    if not resume_entry:
+        flash("Resume not found or you do not have permission to view it.", 'danger')
+        return redirect(url_for('resume'))
+
+    if request.method == 'POST':
+        # This block now primarily handles JSON actions (apply/reject/save edits)
+        data = request.get_json()
+        # action = data.get('action')
+    # For GET requests or after POST actions, render the page
+    original_content_to_display = resume_entry.content
+    
+    # Generate suggestions if they don't exist
+    if not resume_entry.ai_suggestions:
+        try:
+            from main.utils.resume_parser import get_ai_suggestions
+            suggestions = get_ai_suggestions(original_content_to_display)
+            resume_entry.ai_suggestions = suggestions
+            db.session.commit()
+            suggestions_to_display = suggestions
+        except Exception as e:
+            app.logger.error(f"Error generating AI suggestions: {str(e)}")
+            suggestions_to_display = "Error generating AI suggestions. Please try again later."
+    else:
+        suggestions_to_display = resume_entry.ai_suggestions
+
+    # Delete the resume entry after displaying the analysis
+    db.session.delete(resume_entry)
+    db.session.commit()
+
+    return render_template(
+        'result.html',
+        title='Resume Analysis',
+        resume_id=resume_id,
+        original_content=original_content_to_display,
+        suggestions=suggestions_to_display,
+    )
+
+
+
+
+
+# Add a cleanup route to clear session data
+@app.route('/result/cleanup', methods=['POST'])
+def cleanup_session():
+    try:
+        # Clear all resume-related session data
+        for key in ['suggestions', 'original_resume_content']:
+            session.pop(key, None)
+        return jsonify({'success': True, 'message': 'Session data cleaned up successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 
 @app.route('/resume/builder')
@@ -765,11 +830,20 @@ def export_resume():
 
         # Format the resume data
         formatted_data = format_resume_data(data)
-        theme = data.get('theme', 'modern')
+        theme = data.get('theme', 'professional')  # Default to professional theme
 
-        # Convert resume data to HTML using the selected theme
-        template = Template(load_template(theme))
-        html_content = template.render(resume=formatted_data)
+        # Validate theme
+        valid_themes = ['modern', 'professional']
+        if theme not in valid_themes:
+            theme = 'professional'  # Fallback to professional if invalid theme
+
+        try:
+            # Convert resume data to HTML using the selected theme
+            template = Template(load_template(theme))
+            html_content = template.render(resume=formatted_data)
+        except Exception as e:
+            app.logger.error(f"Template rendering error: {str(e)}")
+            return jsonify({'error': f'Failed to render resume template: {str(e)}'}), 500
 
         # Create temporary files
         with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as temp_html:
@@ -815,7 +889,6 @@ def export_resume():
         return jsonify({'error': f'Failed to export resume: {str(e)}'}), 500
 
 
-
 @app.route('/resume/preview', methods=['POST'])
 def preview_resume():
     try:
@@ -825,7 +898,12 @@ def preview_resume():
 
         # Format the resume data with error handling
         formatted_data = format_resume_data(data)
-        theme = data.get('theme', 'modern')
+        theme = data.get('theme', 'professional')  # Default to professional theme
+
+        # Validate theme
+        valid_themes = ['modern', 'professional']
+        if theme not in valid_themes:
+            theme = 'professional'  # Fallback to professional if invalid theme
 
         try:
             # Convert resume data to HTML using the selected theme
@@ -834,232 +912,154 @@ def preview_resume():
         except Exception as e:
             app.logger.error(f"Template rendering error: {str(e)}")
             # Fallback to a basic template if theme rendering fails
-            html_content = f"""
-            <div class="resume">
-                <div class="header">
-                    <h1>{formatted_data['basics']['name']}</h1>
-                    <div class="contact-info">
-                        <span>{formatted_data['basics']['email']}</span>
-                        <span class="separator">•</span>
-                        <span>{formatted_data['basics']['phone']}</span>
-                        <span class="separator">•</span>
-                        <span>{formatted_data['basics']['location']['address']}</span>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2>Summary</h2>
-                    <p>{formatted_data['basics']['summary']}</p>
-                </div>
-
-                <div class="section">
-                    <h2>Experience</h2>
-                    {''.join([f'''
-                    <div class="entry">
-                        <div class="entry-header">
-                            <h3>{work["position"]}</h3>
-                            <span class="company">{work["company"]}</span>
-                        </div>
-                        <div class="entry-dates">{work["startDate"]} - {work["endDate"]}</div>
-                        <p class="description">{work["summary"]}</p>
-                    </div>''' for work in formatted_data['work']])}
-                </div>
-
-                <div class="section">
-                    <h2>Education</h2>
-                    {''.join([f'''
-                    <div class="entry">
-                        <div class="entry-header">
-                            <h3>{edu["institution"]}</h3>
-                            <span class="degree">{edu["area"]}</span>
-                        </div>
-                        <div class="entry-dates">{edu["startDate"]} - {edu["endDate"]}</div>
-                    </div>''' for edu in formatted_data['education']])}
-                </div>
-
-                <div class="section">
-                    <h2>Skills</h2>
-                    <div class="skills-list">
-                        {''.join([f'<span class="skill-tag">{skill["name"]}</span>' for skill in formatted_data['skills']])}
-                    </div>
-                </div>
-            </div>
-            """
+            return render_template('resume_preview_fallback.html', resume=formatted_data)
 
         # Add CSS for better web preview
-        html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>{formatted_data['basics']['name']} - Resume</title>
-            <style>
-                @page {{
-                    size: letter;
-                    margin: 0;
-                }}
-                body {{
-                    font-family: "Times New Roman", Times, serif;
-                    line-height: 1.15;
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f8f9fa;
-                    color: #000;
-                }}
-                .resume {{
-                    width: 8.5in;
-                    min-height: 11in;
-                    padding: 0.75in;
-                    margin: 0 auto;
-                    background-color: white;
-                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                    position: relative;
-                }}
-                .header {{
-                    text-align: center;
-                    margin-bottom: 0.25in;
-                }}
-                h1 {{
-                    font-size: 12pt;
-                    margin: 0 0 0.1in 0;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                }}
-                .contact-info {{
-                    font-size: 12pt;
-                }}
-                .separator {{
-                    margin: 0 0.1in;
-                }}
-                h2 {{
-                    font-size: 12pt;
-                    font-weight: bold;
-                    text-transform: uppercase;
-                    border-bottom: 1px solid #000;
-                    padding-bottom: 0.05in;
-                    margin: 0.2in 0 0.1in 0;
-                }}
-                .section {{
-                    margin-bottom: 0.15in;
-                }}
-                .entry {{
-                    margin-bottom: 0.1in;
-                }}
-                .entry-header {{
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: baseline;
-                    margin-bottom: 0.02in;
-                }}
-                .entry-header h3 {{
-                    font-size: 12pt;
-                    font-weight: bold;
-                    margin: 0;
-                }}
-                .company, .degree {{
-                    font-size: 12pt;
-                    font-style: italic;
-                }}
-                .entry-dates {{
-                    font-size: 12pt;
-                    margin-bottom: 0.02in;
-                }}
-                .description {{
-                    font-size: 12pt;
-                    margin: 0.02in 0;
-                    text-align: justify;
-                }}
-                .skills-list {{
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 0.1in;
-                    margin-top: 0.05in;
-                }}
-                .skill-tag {{
-                    font-size: 12pt;
-                    padding: 0;
-                    margin-right: 0.2in;
-                }}
-                .skill-tag:after {{
-                    content: ",";
-                }}
-                .skill-tag:last-child:after {{
-                    content: "";
-                }}
-                p {{
-                    margin: 0.02in 0;
-                    font-size: 12pt;
-                    text-align: justify;
-                }}
-                @media print {{
-                    body {{
-                        background-color: white;
-                    }}
-                    .resume {{
-                        box-shadow: none;
-                        width: 100%;
-                        height: 100%;
-                        margin: 0;
-                        padding: 0.75in;
-                    }}
-                }}
-            </style>
-        </head>
-        <body>
-            {html_content}
-        </body>
-        </html>
-        """
-
-        return html_content, 200, {'Content-Type': 'text/html'}
+        return render_template('resume_preview.html',
+                               resume=formatted_data,
+                               html_content=html_content,
+                               theme=theme)
 
     except Exception as e:
         app.logger.error(f"Preview error: {str(e)}")
-        # Return a basic error page instead of JSON error
-        error_html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Resume Preview Error</title>
-            <style>
-                body {{
-                    font-family: "Times New Roman", Times, serif;
-                    line-height: 1.15;
-                    margin: 0;
-                    padding: 20px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh;
-                    background-color: #f8f9fa;
-                }}
-                .error-container {{
-                    background-color: white;
-                    padding: 30px;
-                    border: 1px solid #000;
-                    text-align: center;
-                }}
-                h1 {{ 
-                    color: #000;
-                    font-size: 12pt;
-                    margin: 0 0 12px 0;
-                    font-weight: bold;
-                }}
-                p {{
-                    margin: 8px 0;
-                    font-size: 12pt;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="error-container">
-                <h1>Error Generating Preview</h1>
-                <p>There was an error generating the resume preview. Please try again or contact support if the problem persists.</p>
-                <p>Error details: {str(e)}</p>
-            </div>
-        </body>
-        </html>
-        """
-        return error_html, 200, {'Content-Type': 'text/html'}
+        return render_template('resume_preview_error.html', error=str(e))
+
+
+@app.route('/resumes')
+@login_required
+def saved_resumes():
+    resumes = Resume.query.filter_by(user_id=current_user.id).order_by(Resume.updated_at.desc()).all()
+    return render_template('saved_resumes.html', title='My Resumes', resumes=resumes)
+
+
+@app.route('/resume/save', methods=['POST'])
+@login_required
+def save_resume():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+
+        # Validate required fields
+        if not data.get('personal_info', {}).get('name'):
+            return jsonify({'success': False, 'error': 'Name is required'}), 400
+        if not data.get('personal_info', {}).get('email'):
+            return jsonify({'success': False, 'error': 'Email is required'}), 400
+        if not data.get('title'):
+            return jsonify({'success': False, 'error': 'Resume title is required'}), 400
+
+        # Validate theme
+        theme = data.get('theme', 'professional')  # Default to professional theme
+        valid_themes = ['modern', 'professional']
+        if theme not in valid_themes:
+            theme = 'professional'  # Fallback to professional if invalid theme
+
+        # Format the resume data according to JSON Resume schema
+        formatted_data = {
+            'basics': {
+                'name': data['personal_info']['name'],
+                'email': data['personal_info']['email'],
+                'phone': data['personal_info'].get('phone', ''),
+                'location': {
+                    'address': data['personal_info'].get('location', '')
+                },
+                'summary': data['personal_info'].get('summary', '')
+            },
+            'work': [
+                {
+                    'company': exp.get('company', ''),
+                    'position': exp.get('title', ''),
+                    'startDate': exp.get('start_date', ''),
+                    'endDate': exp.get('end_date', ''),
+                    'summary': exp.get('description', '')
+                }
+                for exp in data.get('experience', [])
+            ],
+            'education': [
+                {
+                    'institution': edu.get('school', ''),
+                    'area': edu.get('degree', ''),
+                    'startDate': edu.get('start_date', ''),
+                    'endDate': edu.get('end_date', '')
+                }
+                for edu in data.get('education', [])
+            ],
+            'skills': [
+                {'name': skill}
+                for skill in data.get('skills', [])
+            ],
+            'projects': [
+                {
+                    'name': proj.get('title', ''),
+                    'description': proj.get('description', '')
+                }
+                for proj in data.get('projects', [])
+            ],
+            'awards': [
+                {
+                    'title': award.get('title', ''),
+                    'date': award.get('date', '')
+                }
+                for award in data.get('awards', [])
+            ]
+        }
+
+        # Create a new resume entry
+        resume = Resume(
+            user_id=current_user.id,
+            title=data['title'],
+            content=json.dumps(formatted_data),  # Store formatted data as JSON string
+            theme=theme,  # Store the selected theme
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
+        )
+        db.session.add(resume)
+        db.session.commit()
+
+        app.logger.info(
+            f'Resume saved successfully for user {current_user.id} with title "{data["title"]}" and theme "{theme}"')
+
+        return jsonify({
+            'success': True,
+            'resume_id': resume.id
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f'Error saving resume: {str(e)}')
+        return jsonify({'success': False, 'error': 'Failed to save resume'}), 500
+
+
+@app.route('/resume/verify/<int:resume_id>')
+@login_required
+def verify_resume(resume_id):
+    try:
+        # Attempt to find the resume that matches the resume_id and current user's ID
+        resume = Resume.query.filter_by(id=resume_id, user_id=current_user.id).first()
+
+        return jsonify({
+            'exists': bool(resume),
+            'success': True
+        })
+    except Exception as e:
+        app.logger.error(f"Error verifying resume ID {resume_id} for user {current_user.id}: {str(e)}")
+        return jsonify({
+            'exists': False,
+            'success': False,
+            'error': 'An internal error occurred while verifying the resume.'
+        }), 500
+
+
+def load_template(theme):
+    """Load the appropriate resume theme template."""
+    template_path = os.path.join('main', 'templates', 'resume_themes', f'{theme}.html')
+    try:
+        with open(template_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        app.logger.error(f"Template not found: {template_path}")
+        # Fallback to professional theme if the requested theme is not found
+        fallback_path = os.path.join('main', 'templates', 'resume_themes', 'professional.html')
+        with open(fallback_path, 'r', encoding='utf-8') as f:
+            return f.read()
+

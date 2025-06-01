@@ -33,15 +33,7 @@
                     <i class="bi bi-house-door-fill text-primary me-1"></i>Home
                   </a>
 
-                    <li class="nav-item dropdown">
-                          <a class="nav-link dropdown-toggle" href="#" id="resumeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Resume
-                          </a>
-                          <ul class="dropdown-menu" aria-labelledby="resumeDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('resume') }}">Upload Resume</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('resume_builder') }}">Create Resume</a></li>
-                          </ul>
-                    </li>
+                  <a class="nav-item nav-link" href="{{url_for('resume') }}">Resume</a>
                     <a class="nav-item nav-link" href="{{url_for('people') }}">
                         <i class="bi bi-briefcase-fill text-primary me-1"></i>people
                     </a>
@@ -68,7 +60,7 @@
                         <a class="nav-item nav-link" href="{{ url_for('saved_jobs') }}">
                             <i class="bi bi-bookmark-heart me-1"></i>Saved Jobs
                         </a>
-                        <a class="nav-item nav-link" href="{{ url_for('resume_builder') }}">Resume Builder</a>
+                        <a class="nav-item nav-link" href="{{ url_for('saved_resumes') }}">Saved Resumes</a>
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Logout</a>
 
 
