@@ -13,7 +13,7 @@ Resume: with two seclection to build and give AI provided suggestion to user
   -Upload resume: user could upload their resume, we will provided AI suggestion based on uploaded resume
 People: user could update and show their skills, and employers could search interest future employee based on their skillset
 
-Seamless User Experience
+# Seamless User Experience
   -Secure Authentication:
     -Traditional Email & Password Registration/Login.
   -Social Logins: Convenient sign-in via Google and GitHub.
@@ -22,13 +22,14 @@ Seamless User Experience
   -Password Recovery: Secure password reset functionality.
   -Session Management: Persistent login for a smooth experience.
 
-Build and run the application locally using Docker
+# Build and run the application locally using Docker
   git clone https://github.com/weilan1299/TCSS-506_groupPro.git
   cd career-finder
   ./builder_docker.sh
   ./run_docker.sh
   Open in your browser: http://localhost:5000
 
+#Individual contributions
 ALL: Documentation, GitHub, Debugging
 Weilan: 
 Work on resume builder, API’s and resume templates and resume functions. 
