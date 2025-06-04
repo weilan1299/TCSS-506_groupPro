@@ -29,11 +29,12 @@ People: user could update and show their skills, and employers could search inte
   ./run_docker.sh
   Open in your browser: http://localhost:5000
 
-#Individual contributions
+# Individual contributions
 ALL: Documentation, GitHub, Debugging
 Weilan: 
 Work on resume builder, API’s and resume templates and resume functions. 
 Dereje:
 Work on web design, job posting and login management
 
+#
 https://hub.docker.com/repository/docker/weilan1299/career_finder/tags/latest/sha256-235d76fb013bae16bd3833a94ee2e456f8e88105718c99f610af4c910e5c0e71
