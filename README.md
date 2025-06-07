@@ -38,3 +38,6 @@ Work on web design, API's, job posting and login and account management.
 
 #
 https://hub.docker.com/repository/docker/weilan1299/career_finder/tags/latest/sha256-235d76fb013bae16bd3833a94ee2e456f8e88105718c99f610af4c910e5c0e71
+
+# Currenly Host on EC2
+http://ec2-3-145-175-187.us-east-2.compute.amazonaws.com:5000
