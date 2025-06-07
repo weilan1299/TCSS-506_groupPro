@@ -6,21 +6,23 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     FLASK_APP=app.py \
     FLASK_ENV=production
 
+# Install system dependencies including wkhtmltopdf
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget dpkg xfonts-75dpi xfonts-base fontconfig \
+    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bookworm_amd64.deb \
+    && dpkg -i wkhtmltox_0.12.6-1.bookworm_amd64.deb \
+    && rm wkhtmltox_0.12.6-1.bookworm_amd64.deb \
+    && rm -rf /var/lib/apt/lists/*
+
+
 # Create and set working directory
 WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install python-docx
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
-
-
 
 # Create non-root user
 RUN useradd -m appuser && chown -R appuser:appuser /app
@@ -33,4 +35,4 @@ COPY --chown=appuser:appuser . .
 EXPOSE 5000
 
 # Run the application
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]
