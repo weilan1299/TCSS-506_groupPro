@@ -41,3 +41,9 @@ https://hub.docker.com/repository/docker/weilan1299/career_finder/tags/latest/sh
 
 # Currenly Host on EC2
 http://ec2-3-145-175-187.us-east-2.compute.amazonaws.com:5000
+
+# Bug pending to fix
+Check yml file
+Fix export bug
+Password reset
+Other Login
