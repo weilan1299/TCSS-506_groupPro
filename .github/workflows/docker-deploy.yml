@@ -27,9 +27,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: 🔐 Create .env from secret
-        run: echo "${{ secrets.DOTENV_CONTENT }}" > .env
-
 
       - name: 🏗️ Build & Push Multi-Arch Docker Image
         uses: docker/build-push-action@v5
@@ -48,6 +45,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           debug: true
           script: |
+            echo "${{ secrets.DOTENV_CONTENT }}" > .env
             docker pull ${{ env.IMAGE_NAME }}:latest
             docker stop careerfinder || true
             docker rm careerfinder || true
