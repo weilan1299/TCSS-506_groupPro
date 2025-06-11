@@ -200,45 +200,6 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
-
-@app.route("/google")
-def google_login():
-    if not google.authorized:
-        flash("Google login failed. Please try again.", "danger")
-        return redirect(url_for("google.login"))
-    try:
-        resp = google.get("/oauth2/v2/userinfo")
-        if not resp.ok:
-            flash("Failed to fetch user info from Google", "danger")
-            return redirect(url_for("login"))
-
-        user_info = resp.json()
-        # Extract user information from the response
-        email = user_info["email"]
-        username= user_info.get('name') or email.split('@')[0]  # Use the part before '@' as username
-
-        if not email:
-            flash("No email found in Google account", "danger")
-            return redirect(url_for("login"))
-
-        # Check if user exists or create one
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            user = User(username=username, email=email, password='oauth')  # Dummy password
-            db.session.add(user)
-            db.session.commit()
-        login_user(user)
-        flash("Logged in via Google", "success")
-        return redirect(url_for("home"))
-
-    except Exception as e:
-        import traceback
-        print('Google login error:', e)
-        traceback.print_exc()
-        flash("Something went wrong during Google login", "danger")
-        return redirect(url_for("login"))
-
-
 @app.route("/github")
 def github_login():
     if not github.authorized:
