@@ -7,13 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     FLASK_ENV=production
 
 # Install system dependencies including wkhtmltopdf
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget dpkg xfonts-75dpi xfonts-base fontconfig \
-    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bookworm_amd64.deb \
-    && dpkg -i wkhtmltox_0.12.6-1.bookworm_amd64.deb || true \
-    && apt-get install -f -y \
-    && rm wkhtmltox_0.12.6-1.bookworm_amd64.deb \
-    && rm -rf /var/lib/apt/lists/*
+RUN dpkg -i wkhtmltox_0.12.6-1.bookworm_amd64.deb || true
 
 
 # Create and set working directory
