@@ -17,20 +17,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY']="cfa2f205ad8f7196954a5050e98cc199"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 
-#Google OAuth
-google_bp = make_google_blueprint(
-    client_id=os.getenv("GOOGLE_CLIENT_ID"),
-    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    scope=["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"],
-    redirect_to="google_login"
-)
 
 #GitHub OAuth
 github_bp = make_github_blueprint(client_id=os.getenv("GITHUB_CLIENT_ID"),
                                    client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
                                   redirect_to="github_login")
 
-app.register_blueprint(google_bp, url_prefix='/login')
 app.register_blueprint(github_bp, url_prefix='/login')
 
 db = SQLAlchemy(app)
