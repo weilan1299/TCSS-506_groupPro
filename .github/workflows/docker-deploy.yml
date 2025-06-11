@@ -31,10 +31,10 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           debug: true
           script: |
+            ssh -i ${{ secrets.SERVER_SSH_KEY }} ${{ secrets.SERVER_IP }}
             docker pull ${{ env.IMAGE_NAME }}:latest
             docker stop careerfinder || true
             docker rm careerfinder || true
