@@ -7,6 +7,8 @@ on:
 
 env:
   IMAGE_NAME: weilan1299/career_finder
+  
+  
 
 jobs:
   build_push_deploy:
@@ -24,6 +26,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: 🔐 Create .env from secret
+        run: echo "${{ secrets.DOTENV_CONTENT }}" > .env
+
 
       - name: 🏗️ Build & Push Multi-Arch Docker Image
         uses: docker/build-push-action@v5
@@ -45,4 +51,5 @@ jobs:
             docker pull ${{ env.IMAGE_NAME }}:latest
             docker stop careerfinder || true
             docker rm careerfinder || true
-            docker run -d --name careerfinder -p 5000:5001 ${{ env.IMAGE_NAME }}:latest
+            docker run -d --name careerfinder --env-file .env -p 5000:5001 ${{ env.IMAGE_NAME }}:latest
+
