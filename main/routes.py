@@ -3,7 +3,7 @@ import secrets
 from PIL import Image, ImageOps
 from flask import render_template, url_for, flash, redirect, request, abort, session, jsonify, send_file
 from wtforms.validators import email
-from main import app, db, bcrypt, mail, google, github
+from main import app, db, bcrypt, mail, github
 from main.models import User, SavedJob, Resume
 from main.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestRestForm, ResetPasswordForm, ProfileForm
 from flask_login import login_user, current_user, logout_user, login_required
