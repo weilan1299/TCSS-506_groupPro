@@ -45,7 +45,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           debug: true
           script: |
-            echo "${{ secrets.DOTENV_CONTENT }}" > .env
+            echo "${{ secrets.ENV }}" > .env
             docker pull ${{ env.IMAGE_NAME }}:latest
             docker stop careerfinder || true
             docker rm careerfinder || true
