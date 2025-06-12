@@ -8,9 +8,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Install system dependencies including wkhtmltopdf
 RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bookworm_amd64.deb \  # <-- THIS downloads wkhtmltopdf
-    && dpkg -i wkhtmltox_0.12.6-1.bookworm_amd64.deb \  # <-- Installs it
-    && rm wkhtmltox_0.12.6-1.bookworm_amd64.deb \  # <-- Cleans up the downloaded file
-    && rm -rf /var/lib/apt/lists/*  # <-- Cleans up package lists to reduce image size
+    dpkg -i wkhtmltox_0.12.6-1.bookworm_amd64.deb \  # <-- Installs it
+    rm wkhtmltox_0.12.6-1.bookworm_amd64.deb \  # <-- Cleans up the downloaded file
+    rm -rf /var/lib/apt/lists/*  # <-- Cleans up package lists to reduce image size
 
 
 # Create and set working directory
