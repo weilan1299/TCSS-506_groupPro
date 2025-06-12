@@ -13,13 +13,14 @@ RUN apt-get install -y curl wget fontconfig xfonts-base xfonts-75dpi
 RUN curl -L -o wkhtmltox_0.12.6-1.buster_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb
 
 # Install with dpkg
-RUN dpkg -i wkhtmltox.deb || true
+RUN dpkg -i wkhtmltox_0.12.6-1.buster_amd64.deb || apt-get install -f -y \
 
 # Fix missing dependencies
 RUN apt-get install -f -y
 
 # Clean up
-RUN rm wkhtmltox.deb
+RUN rm wkhtmltox_0.12.6-1.buster_amd64.deb
+
 RUN rm -rf /var/lib/apt/lists/*
 
 
