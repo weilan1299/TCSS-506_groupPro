@@ -6,21 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     FLASK_APP=app.py \
     FLASK_ENV=production
 
-RUN apt-get update
-RUN apt-get install -y curl wget fontconfig xfonts-base xfonts-75dpi
+RUN apt-get install wkhtmltopdf
 
-# Download .deb
-RUN curl -L -o wkhtmltox_0.12.6-1.buster_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb
 
-# Install package, ignore errors for now
-RUN dpkg -i wkhtmltox_0.12.6-1.buster_amd64.deb || true
-# Fix missing dependencies
-RUN apt-get install -f -y
-
-# Clean up
-RUN rm wkhtmltox_0.12.6-1.buster_amd64.deb
-
-RUN rm -rf /var/lib/apt/lists/*
 
 
 # Create and set working directory
