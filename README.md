@@ -47,7 +47,7 @@ Work on web design, API's, job posting and login and account management.
 http://ec2-3-145-175-187.us-east-2.compute.amazonaws.com:5000
 
 # Bug pending to fix
-- Check yml file
+- Check yml file - Successful action running .github/workflows/build-push-deploy.yml
 - Fixed export bug New Docker file add install wkhtmltopdf
-- Password reset
-- Other Login
+- Password reset fixed
+- Other Login fixed
