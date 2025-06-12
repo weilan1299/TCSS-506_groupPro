@@ -6,8 +6,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     FLASK_APP=app.py \
     FLASK_ENV=production
 
-RUN apt-get install wkhtmltopdf
-
+RUN curl -L -o wkhtmltox.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+RUN dpkg -i wkhtmltox.deb
+RUN apt-get install -f -y
+RUN rm wkhtmltox.deb
 
 
 
