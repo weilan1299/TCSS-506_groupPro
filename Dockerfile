@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apt-get update && apt-get install -y curl
 RUN curl -L -o wkhtmltox.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/wkhtmltox_0.12.6.1-3.bookworm_amd64.deb 
-RUN apt-get install -y --no-install-recommends ./wkhtmltox.deb 
+RUN dpkg -i wkhtmltox.deb || apt-get install -f -y
 
 RUN rm wkhtmltox.deb
 
