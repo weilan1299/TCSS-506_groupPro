@@ -52,3 +52,5 @@ http://ec2-3-145-175-187.us-east-2.compute.amazonaws.com:5000
 - Fixed export bug New Docker file add install wkhtmltopdf
 - Password reset fixed
 - Other Login fixed
+
+# Add function for follow us on GitHub
