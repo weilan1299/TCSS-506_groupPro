@@ -38,7 +38,8 @@ Work on web design, API's, job posting and login and account management.
 
 
 # Docker image to host on EC2
-- https://hub.docker.com/repository/docker/weilan1299/career_finder/tags/latest/sha256-235d76fb013bae16bd3833a94ee2e456f8e88105718c99f610af4c910e5c0e71
+[- https://hub.docker.com/repository/docker/weilan1299/career_finder/tags/latest/sha256-235d76fb013bae16bd3833a94ee2e456f8e88105718c99f610af4c910e5c0e71
+](https://hub.docker.com/repository/docker/weilan1299/career_finder/general)
 ## command
 - docker pull weilan1299/career_finder
 - docker run -d -p 5000:5001 --name careerfinder weilan1299/career_finder
