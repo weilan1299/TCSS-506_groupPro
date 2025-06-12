@@ -7,13 +7,20 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     FLASK_ENV=production
 
 RUN apt-get update
-RUN apt-get install -y curl
+RUN apt-get install -y curl wget fontconfig xfonts-base xfonts-75dpi
 
+# Download .deb
 RUN curl -L -o wkhtmltox.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bookworm_amd64.deb
 
-RUN apt install -y ./wkhtmltox.deb
+# Install with dpkg
+RUN dpkg -i wkhtmltox.deb || true
 
+# Fix missing dependencies
+RUN apt-get install -f -y
+
+# Clean up
 RUN rm wkhtmltox.deb
+RUN rm -rf /var/lib/apt/lists/*
 
 
 # Create and set working directory
