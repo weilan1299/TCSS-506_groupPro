@@ -17,8 +17,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 
 
 #GitHub OAuth
-github_bp = make_github_blueprint(client_id=os.getenv("GITHUB_CLIENT_ID"),
-                                   client_secret=os.getenv("GITHUB_CLIENT_SECRET"),
+github_bp = make_github_blueprint(client_id=os.getenv("GIT_CLIENT_ID"),
+                                   client_secret=os.getenv("GIT_CLIENT_SECRET"),
                                   redirect_to="github_login")
 
 app.register_blueprint(github_bp, url_prefix='/login')
