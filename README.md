@@ -42,7 +42,8 @@ Work on web design, API's, job posting and login and account management.
 ](https://hub.docker.com/repository/docker/weilan1299/career_finder/general)
 ## command
 - docker pull weilan1299/career_finder
-- docker run -d -p 5000:5001 --name careerfinder weilan1299/career_finder
+- sudo docker run -d --name careerfinder-backend -p 80:5001 weilan1299/career_finder
+
 
 # Currenly Host on EC2
 http://ec2-3-145-175-187.us-east-2.compute.amazonaws.com:5000
@@ -54,3 +55,4 @@ http://ec2-3-145-175-187.us-east-2.compute.amazonaws.com:5000
 - Other Login fixed
 
 # Add function for follow us on GitHub
+
